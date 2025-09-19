@@ -19,8 +19,15 @@ jobs:
       with:
         python-version: '3.x' # Use the latest Python 3.x version
 
-    # - name: List repository root contents for debugging # Debug step removed
-    #   run: ls -R .
+    - name: Debug Telegram Environment Variables
+      run: |
+        echo "TELEGRAM_BOT_TOKEN_SET: ${{ env.TELEGRAM_BOT_TOKEN != '' }}"
+        echo "TELEGRAM_CHAT_ID_SET: ${{ env.TELEGRAM_CHAT_ID != '' }}"
+        echo "TELEGRAM_BOT_TOKEN_START: ${{ env.TELEGRAM_BOT_TOKEN | slice:0:5 }}"
+        echo "TELEGRAM_CHAT_ID_VALUE: ${{ env.TELEGRAM_CHAT_ID }}"
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
     - name: Install dependencies
       run: pip install -r "requirements.txt"
@@ -32,4 +39,6 @@ jobs:
         # Create SUPABASE_URL and SUPABASE_KEY secrets with your actual values.
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
       run: python "crawl_google_news.py"
