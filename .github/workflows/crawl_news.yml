@@ -19,8 +19,8 @@ jobs:
       with:
         python-version: '3.x' # Use the latest Python 3.x version
 
-    - name: List project directory contents for debugging
-      run: ls -R "01 Project/20250919_구글뉴스_AI크롤링"
+    - name: List repository root contents for debugging
+      run: ls -R .
 
     - name: Install dependencies
       run: pip install -r "01 Project/20250919_구글뉴스_AI크롤링/requirements.txt"
