@@ -21,13 +21,8 @@ jobs:
 
     - name: Debug Telegram Environment Variables
       run: |
-        echo "TELEGRAM_BOT_TOKEN_SET: ${{ env.TELEGRAM_BOT_TOKEN != '' }}"
-        echo "TELEGRAM_CHAT_ID_SET: ${{ env.TELEGRAM_CHAT_ID != '' }}"
-        echo "TELEGRAM_BOT_TOKEN_START: ${{ env.TELEGRAM_BOT_TOKEN | slice:0:5 }}"
-        echo "TELEGRAM_CHAT_ID_VALUE: ${{ env.TELEGRAM_CHAT_ID }}"
-      env:
-        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        echo "TELEGRAM_BOT_TOKEN_SET: ${{ secrets.TELEGRAM_BOT_TOKEN != '' }}"
+        echo "TELEGRAM_CHAT_ID_SET: ${{ secrets.TELEGRAM_CHAT_ID != '' }}"
 
     - name: Install dependencies
       run: pip install -r "requirements.txt"
