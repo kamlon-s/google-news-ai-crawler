@@ -1,0 +1,34 @@
+name: Daily AI News Crawl and Upload
+
+on:
+  schedule:
+    # Runs daily at 12:00 PM UTC
+    # Adjust the cron schedule for your desired timezone and time.
+    # For example, if you want 12:00 PM KST (UTC+9), it would be '0 3 * * *' UTC.
+    - cron: '0 12 * * *'
+  workflow_dispatch: # Allows manual triggering from GitHub Actions tab
+
+jobs:
+  crawl-and-upload:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.x' # Use the latest Python 3.x version
+
+    - name: Install dependencies
+      run: pip install -r "01 Project/20250919_구글뉴스_AI크롤링/requirements.txt"
+
+    - name: Run AI News Crawler and Upload to Supabase
+      env:
+        # IMPORTANT: These secrets must be configured in your GitHub repository settings.
+        # Go to your repository -> Settings -> Secrets and variables -> Actions -> New repository secret
+        # Create SUPABASE_URL and SUPABASE_KEY secrets with your actual values.
+        SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+        SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+      run: python "01 Project/20250919_구글뉴스_AI크롤링/crawl_google_news.py"
