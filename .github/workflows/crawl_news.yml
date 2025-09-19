@@ -19,11 +19,11 @@ jobs:
       with:
         python-version: '3.x' # Use the latest Python 3.x version
 
-    - name: List repository root contents for debugging
-      run: ls -R .
+    # - name: List repository root contents for debugging # Debug step removed
+    #   run: ls -R .
 
     - name: Install dependencies
-      run: pip install -r "01 Project/20250919_구글뉴스_AI크롤링/requirements.txt"
+      run: pip install -r "requirements.txt"
 
     - name: Run AI News Crawler and Upload to Supabase
       env:
@@ -32,4 +32,4 @@ jobs:
         # Create SUPABASE_URL and SUPABASE_KEY secrets with your actual values.
         SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
         SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-      run: python "01 Project/20250919_구글뉴스_AI크롤링/crawl_google_news.py"
+      run: python "crawl_google_news.py"
