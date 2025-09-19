@@ -1,6 +1,6 @@
 from gnews import GNews
 import time
-from upload_to_supabase import upload_news_to_supabase # Supabase 업로드 함수 임포트
+from upload_to_supabase import upload_news_to_supabase, send_telegram_message # Supabase 업로드 및 Telegram 함수 임포트
 
 def crawl_google_news(query, num_articles=10, lang='ko', country='KR'):
     google_news = GNews(language=lang, country=country, max_results=num_articles)
@@ -36,21 +36,32 @@ def crawl_google_news(query, num_articles=10, lang='ko', country='KR'):
     return crawled_data
 
 if __name__ == "__main__":
-    search_query = "ai"
-    top_articles = crawl_google_news(search_query, num_articles=10)
-    
-    if top_articles:
-        print("\n=== 크롤링 완료된 기사 메타데이터 목록 ===")
-        for i, article in enumerate(top_articles):
-            print(f"\n--- 기사 {i+1} ---")
-            print(f"제목: {article['title']}")
-            print(f"출처: {article['publisher']}")
-            print(f"발행일: {article['published_date']}")
-            print(f"Google News URL: {article['url']}")
-        print("\n참고: Google News RSS 링크의 복잡한 리디렉션 메커니즘으로 인해 기사 본문 전체를 안정적으로 추출하는 것은 현재 도구로는 어렵습니다. 위 목록은 기사의 제목, 출처, 발행일 및 Google News 링크를 제공합니다.")
+    try:
+        search_query = "ai"
+        top_articles = crawl_google_news(search_query, num_articles=10)
         
-        # Supabase에 크롤링된 데이터 업로드
-        print("\n=== Supabase에 데이터 업로드 시작 ===")
-        upload_news_to_supabase(top_articles)
-    else:
-        print("크롤링된 기사 메타데이터가 없습니다.")
+        if top_articles:
+            print("\n=== 크롤링 완료된 기사 메타데이터 목록 ===")
+            for i, article in enumerate(top_articles):
+                print(f"\n--- 기사 {i+1} ---")
+                print(f"제목: {article['title']}")
+                print(f"출처: {article['publisher']}")
+                print(f"발행일: {article['published_date']}")
+                print(f"Google News URL: {article['url']}")
+            print("\n참고: Google News RSS 링크의 복잡한 리디렉션 메커니즘으로 인해 기사 본문 전체를 안정적으로 추출하는 것은 현재 도구로는 어렵습니다. 위 목록은 기사의 제목, 출처, 발행일 및 Google News 링크를 제공합니다.")
+            
+            # Supabase에 크롤링된 데이터 업로드
+            print("\n=== Supabase에 데이터 업로드 시작 ===")
+            upload_news_to_supabase(top_articles)
+
+            # 전체 작업 성공 알림
+            send_telegram_message("✅ AI 뉴스 크롤링 및 Supabase 업로드가 성공적으로 완료되었습니다.")
+        else:
+            no_data_message = "크롤링된 기사 메타데이터가 없습니다."
+            print(no_data_message)
+            send_telegram_message(f"⚠️ {no_data_message}")
+
+    except Exception as e:
+        error_message = f"❌ AI 뉴스 크롤링 및 Supabase 업로드 중 치명적인 오류 발생: {e}"
+        print(error_message)
+        send_telegram_message(error_message)
