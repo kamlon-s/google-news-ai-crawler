@@ -3,7 +3,7 @@ name: Daily AI News Crawl and Upload
 on:
   schedule:
     # Runs daily at 11:45 PM KST (14:45 UTC)
-    - cron: '0 3 * * *' # Every day at 03:00 UTC (12:00 KST)
+    - cron: '0 4 * * *' # Every day at 04:00 UTC (13:00 KST)
   workflow_dispatch: # Allows manual triggering from GitHub Actions tab
 
 jobs:
