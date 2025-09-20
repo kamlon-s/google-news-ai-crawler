@@ -6,7 +6,7 @@ import requests
 # 실제 프로젝트에서는 환경 변수를 사용하는 것이 보안상 더 좋습니다.
 SUPABASE_URL = os.environ.get("SUPABASE_URL") or "https://iwmyyalggkttnaxfhcpo.supabase.co"
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY") or "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml3bXl5YWxnZ2t0dG5heGZoY3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTgyNzQ2MDYsImV4cCI6MjA3Mzg1MDYwNn0.XrybkF7_jvf4aZZs2SHsn-3paEvCmeenqT6KCDrIAUk"
-TABLE_NAME = "test" # 테이블 이름을 "test"로 수정
+TABLE_NAME = "articles" # 테이블 이름을 "articles"로 수정
 
 # Telegram 봇 자격 증명 (환경 변수 또는 직접 입력)
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
@@ -30,6 +30,16 @@ def send_telegram_message(message: str):
     except requests.exceptions.RequestException as e:
         print(f"Telegram 메시지 전송 실패: {e}")
 
+
+def get_latest_articles_from_supabase(supabase_client: Client, num_articles: int = 5):
+    """Fetches the latest articles from Supabase."""
+    try:
+        response = supabase_client.from_(TABLE_NAME).select("url").order("published_date", desc=True).limit(num_articles).execute()
+        articles = response.data
+        return [article["url"] for article in articles]
+    except Exception as e:
+        print(f"Error fetching articles from Supabase: {e}")
+        return []
 
 def upload_news_to_supabase(news_data: list[dict]):
     if not SUPABASE_URL or SUPABASE_URL == "YOUR_SUPABASE_URL":
@@ -62,6 +72,17 @@ def upload_news_to_supabase(news_data: list[dict]):
             success_message = f"{len(response.data)}개의 기사 메타데이터가 Supabase에 성공적으로 업로드되었습니다."
             print(success_message)
             send_telegram_message(success_message)
+
+            # Fetch and send latest article URLs to Telegram
+            latest_article_urls = get_latest_articles_from_supabase(supabase, 5)
+            if latest_article_urls:
+                telegram_article_message = "최신 기사 5개:\n"
+                for i, url in enumerate(latest_article_urls):
+                    telegram_article_message += f"{i+1}. {url}\n"
+                send_telegram_message(telegram_article_message)
+            else:
+                print("최신 기사를 가져오지 못했습니다.")
+
         elif response.error:
             error_message = f"Supabase 업로드 중 오류 발생: {response.error}"
             print(error_message)
