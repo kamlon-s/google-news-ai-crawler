@@ -32,11 +32,21 @@ def send_telegram_message(message: str):
 
 
 def get_latest_articles_from_supabase(supabase_client: Client, num_articles: int = 5):
-    """Fetches the latest articles from Supabase."""
+    """Fetches the latest unique articles from Supabase."""
     try:
-        response = supabase_client.from_(TABLE_NAME).select("title,url").order("publish_date", desc=True).limit(num_articles).execute()
+        # Fetch more articles than needed to account for potential duplicates
+        response = supabase_client.from_(TABLE_NAME).select("title,url").order("publish_date", desc=True).limit(num_articles * 2).execute()
         articles = response.data
-        return articles
+
+        unique_articles = []
+        seen_urls = set()
+        for article in articles:
+            if article["url"] not in seen_urls:
+                unique_articles.append(article)
+                seen_urls.add(article["url"])
+            if len(unique_articles) >= num_articles:
+                break
+        return unique_articles
     except Exception as e:
         print(f"Error fetching articles from Supabase: {e}")
         return []
